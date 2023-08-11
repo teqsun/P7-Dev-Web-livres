@@ -5,7 +5,7 @@ exports.createBook = (req,res, next) =>{
    const bookObject = JSON.parse(req.body.book)
    delete bookObject._id
    delete bookObject._userId
-  // console.log(req.file.filename)
+
    const book = new Book({
     ...bookObject,
     userId: req.auth.userId,
@@ -42,19 +42,7 @@ exports.modifyBook =(req, res, next) => {
   });
 }
 
-exports.bestRating = (req, res, next) => {
-  const bookBestRatings = Book.find().sort({ rating : -1}).limit(3)
-    .then(bookBestRating => res.status(200).json(bookBestRating))
-    .catch(error => res.status(400).json({ error}))
-    console.log("bookBestRatings:", bookBestRatings)
 
-/*
-const bookBestRatings = Book.find()
-const bestBooks = bookBestRatings.sort((a,b)=> b.rating - a.rating).slice(0,3)
-*/
-
-
-   }
 
 
 exports.deleteBook = (req, res, next) => {
@@ -83,37 +71,40 @@ exports.getOneBook = (req, res, next) => {
      
     }
 
-exports.postRating = (req, res, next) => {
-
+ exports.postRating = async (req, res, next) => {
+  
   const id = req.params.id
-  console.log("id:",id)
-  if (id == null || id=="undefined")
+
+  if (id == null || id == "undefined")
  {
   res.status(400).json({ message : "Book missing"})
   return
  }
  const rating = req.body.rating
  const userId = req.auth.userId
- const book = Book.findById(id)
- console.log("userid :", userId)
- console.log("book :", book)
- if (book == null){
-  res.status(404).json({message : 'Book not found'})
-  return
-}
+ const book = await Book.findById(id)
 
-const ratingsCurrent = book.ratings;
-console.log("currrentrating :", ratingsCurrent)
-const checkRatingFromCurrentUser = ratingsCurrent.find((rating) => rating.userId == userId)
+  if (book == null){
+  res.status(404).json({message : 'Book not found'});
+  return ;
+  } 
+
+const currentRatings =  book.ratings ;
+//const currentRates =  book.body.ratings ;
+console.log("currentRatings :", currentRatings)
+//console.log("currentRates :", currentRates)
+const checkRatingFromCurrentUser = currentRatings.find((rating) => rating.userId == userId)
  if (checkRatingFromCurrentUser != null){
  res.status(400).json({message : 'Already rated'})
  return
 }
  const newRating = {userId: userId, grade: rating}
- ratingsCurrent.push(newRating)
- book.averageRating = sumAverageRating(ratingsCurrent)
+ currentRatings.push(newRating)
+ book.averageRating = sumAverageRating(currentRatings)
  book.save()
- res.status(201).json({message : 'Rating posted'})
+ .then((book) => res.status(201).json(book))
+
+
 }
 
 function sumAverageRating(ratings){
@@ -121,7 +112,19 @@ function sumAverageRating(ratings){
   return allGrades / ratings.length
 }
 
+exports.bestRating = async (req, res, next) => {
+  const bookBestRatings = await Book.find().sort({ averageRating : -1}).limit(3)
+    .then(bookBestRating => res.status(200).json(bookBestRating))
+    .catch(error => res.status(400).json({ error}))
+    console.log("bookBestRatings:", bookBestRatings)
 
+/*
+const bookBestRatings = Book.find()
+const bestBooks = bookBestRatings.sort((a,b)=> b.rating - a.rating).slice(0,3)
+*/
+
+
+   }
 
 exports.getAllBook = (req, res, next) => {
     Book.find()
