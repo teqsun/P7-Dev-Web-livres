@@ -1,6 +1,9 @@
 # P7-Dev-Web-livres
 Code front-end du projet back-end (P5) du parcours Développeur Web 3.0.
 
+
+Attention aux majuscules !
+
 Installation de première ouverture :
 
 ouvrir terminal
@@ -15,6 +18,7 @@ ouvrir un nouveau terminal
 -tapez : npm start
 
 Lancement du projet a partir de la seconde fois
+
 -ouvrir terminal
 -tapez : cd Frontend
 -tapez pour finir npm start
