@@ -13,7 +13,7 @@ const optimizeImage = (req, res, next) => {
     const imageOutput = req.file.path.replace(/\.(jpg|jpeg|png)$/, ".webp");
 
     sharp(imageInput)
-    .resize(400)
+    .resize({ width: 400 })
     .toFormat('webp')
     .toFile(imageOutput)
     .then(() => {

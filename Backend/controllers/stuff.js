@@ -90,9 +90,6 @@ exports.getOneBook = (req, res, next) => {
   } 
 
 const currentRatings =  book.ratings ;
-//const currentRates =  book.body.ratings ;
-console.log("currentRatings :", currentRatings)
-//console.log("currentRates :", currentRates)
 const checkRatingFromCurrentUser = currentRatings.find((rating) => rating.userId == userId)
  if (checkRatingFromCurrentUser != null){
  res.status(400).json({message : 'Already rated'})
@@ -113,17 +110,9 @@ function sumAverageRating(ratings){
 }
 
 exports.bestRating = async (req, res, next) => {
-  const bookBestRatings = await Book.find().sort({ averageRating : -1}).limit(3)
+  Book.find().sort({ averageRating : -1}).limit(3)
     .then(bookBestRating => res.status(200).json(bookBestRating))
     .catch(error => res.status(400).json({ error}))
-    console.log("bookBestRatings:", bookBestRatings)
-
-/*
-const bookBestRatings = Book.find()
-const bestBooks = bookBestRatings.sort((a,b)=> b.rating - a.rating).slice(0,3)
-*/
-
-
    }
 
 exports.getAllBook = (req, res, next) => {
